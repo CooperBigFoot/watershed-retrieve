@@ -11,8 +11,8 @@ class TestAvailableCountries:
     def test_returns_a_list(self) -> None:
         assert isinstance(wr.available_countries(), list)
 
-    def test_has_15_items(self) -> None:
-        assert len(wr.available_countries()) == 15
+    def test_has_18_items(self) -> None:
+        assert len(wr.available_countries()) == 18
 
     def test_is_sorted(self) -> None:
         countries = wr.available_countries()

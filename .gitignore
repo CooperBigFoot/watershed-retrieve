@@ -16,3 +16,6 @@ Thumbs.db
 # Scratchpad (keep folder, ignore contents)
 scratchpad/*
 !scratchpad/.gitkeep
+
+# Generated configs
+outlets.toml

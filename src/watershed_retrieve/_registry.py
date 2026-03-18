@@ -34,6 +34,9 @@ _COUNTRIES: dict[str, CountryInfo] = {
         _country("portugal"),
         _country("slovenia"),
         _country("south_africa"),
+        _country("spain"),
+        _country("uk_ea"),
+        _country("uk_nrfa"),
         _country("usa"),
     ]
 }

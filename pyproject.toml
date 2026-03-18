@@ -1,6 +1,6 @@
 [project]
 name = "watershed-retrieve"
-version = "0.1.1"
+version = "0.1.2"
 description = "watershed-retrieve"
 readme = "README.md"
 requires-python = ">=3.13"
@@ -66,7 +66,7 @@ markers = ["integration: marks tests that read real parquet data"]
 # Bump My Version
 # -----------------------
 [tool.bumpversion]
-current_version = "0.1.1"
+current_version = "0.1.2"
 commit = false
 tag = false
 allow_dirty = true
