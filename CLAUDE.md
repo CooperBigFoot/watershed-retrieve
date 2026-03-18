@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-SHORT PROJECT DESCRIPTION
+watershed-retrieve
 
 ## Task Management Principles
 
@@ -127,7 +127,7 @@ value: str | None = None
 
 Before committing, follow this exact sequence:
 
-1. `uv run bump-my-version bump patch` — modifies `pyproject.toml` and `src/mypackage/__init__.py`
+1. `uv run bump-my-version bump patch` — modifies `pyproject.toml` and `src/watershed_retrieve/__init__.py`
 2. Stage version files alongside code changes
 3. Commit with a conventional commit message
 4. `git tag v$(uv run bump-my-version show current_version)` — tag the commit
