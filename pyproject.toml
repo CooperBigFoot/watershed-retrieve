@@ -1,6 +1,6 @@
 [project]
 name = "watershed-retrieve"
-version = "0.1.3"
+version = "1.0.0"
 description = "Pre-delineated MERIT-Hydro watershed boundaries for ~60,000 gauging stations across 16 countries"
 readme = "README.md"
 authors = [{ name = "Nicolas Lazaro", email = "nlazaro@ethz.ch" }]
@@ -86,7 +86,7 @@ markers = [
 # Bump My Version
 # -----------------------
 [tool.bumpversion]
-current_version = "0.1.3"
+current_version = "1.0.0"
 commit = false
 tag = false
 allow_dirty = true
