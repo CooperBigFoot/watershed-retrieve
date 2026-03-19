@@ -1,13 +1,30 @@
 [project]
 name = "watershed-retrieve"
-version = "0.1.2"
-description = "watershed-retrieve"
+version = "0.1.3"
+description = "Pre-delineated MERIT-Hydro watershed boundaries for ~60,000 gauging stations across 16 countries"
 readme = "README.md"
+authors = [{ name = "Nicolas Lazaro", email = "nlazaro@ethz.ch" }]
+license = "MIT"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Typing :: Typed",
+]
+keywords = ["hydrology", "watershed", "MERIT-Hydro", "GeoParquet", "geopandas", "delineation", "catchment"]
 requires-python = ">=3.13"
 dependencies = [
     "geopandas>=1.1.3",
     "pyarrow>=23.0.1",
+    "fsspec[http]>=2024.1.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/CooperBigFoot/watershed-retrieve"
+Repository = "https://github.com/CooperBigFoot/watershed-retrieve"
+Issues = "https://github.com/CooperBigFoot/watershed-retrieve/issues"
 
 
 [build-system]
@@ -27,7 +44,7 @@ dev = [
 # -----------------------
 [tool.ruff]
 line-length = 120
-target-version = "py312"
+target-version = "py313"
 # extend-exclude = ["notebooks/", "experiments/"]
 
 [tool.ruff.lint]
@@ -60,13 +77,16 @@ python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = ["--strict-markers", "--strict-config", "-ra"]
-markers = ["integration: marks tests that read real parquet data"]
+markers = [
+    "integration: marks tests that read real parquet data",
+    "network: marks tests that require network access to R2",
+]
 
 # -----------------------
 # Bump My Version
 # -----------------------
 [tool.bumpversion]
-current_version = "0.1.2"
+current_version = "0.1.3"
 commit = false
 tag = false
 allow_dirty = true

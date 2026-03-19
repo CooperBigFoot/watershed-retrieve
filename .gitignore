@@ -19,3 +19,11 @@ scratchpad/*
 
 # Generated configs
 outlets.toml
+
+# Developer-only directories
+scripts/
+.claude/
+
+# Coverage
+.coverage
+htmlcov/

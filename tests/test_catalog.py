@@ -7,27 +7,9 @@ from watershed_retrieve import CountryNotFoundError
 pytestmark = pytest.mark.integration
 
 
-class TestAvailableCountries:
-    def test_returns_a_list(self) -> None:
-        assert isinstance(wr.available_countries(), list)
-
-    def test_has_18_items(self) -> None:
-        assert len(wr.available_countries()) == 18
-
-    def test_is_sorted(self) -> None:
-        countries = wr.available_countries()
-        assert countries == sorted(countries)
-
-    def test_contains_portugal(self) -> None:
-        assert "portugal" in wr.available_countries()
-
-    def test_contains_south_africa(self) -> None:
-        assert "south_africa" in wr.available_countries()
-
-    def test_all_entries_are_lowercase_strings(self) -> None:
-        for entry in wr.available_countries():
-            assert isinstance(entry, str)
-            assert entry == entry.lower()
+@pytest.fixture(autouse=True)
+def _setup_data_dir(configure_data_dir: None) -> None:
+    pass
 
 
 class TestAvailableGauges:

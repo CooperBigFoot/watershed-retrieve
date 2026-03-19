@@ -9,6 +9,11 @@ KNOWN_GAUGE_SLASH = "04K/04A"
 PORTUGAL_GAUGE_COUNT = 73
 
 
+@pytest.fixture(autouse=True)
+def _setup_data_dir(configure_data_dir: None) -> None:
+    pass
+
+
 @pytest.mark.integration
 class TestGetWatershed:
     def test_returns_geodataframe(self) -> None:

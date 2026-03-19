@@ -15,3 +15,11 @@ class GaugeNotFoundError(WatershedRetrieveError):
 class DataNotFoundError(WatershedRetrieveError):
     pass
     # Message format: "Data file not found: /path/to/portugal_watersheds.parquet"
+
+
+class DataUnavailableError(WatershedRetrieveError):
+    pass
+
+
+class R2ConnectionError(WatershedRetrieveError):
+    pass

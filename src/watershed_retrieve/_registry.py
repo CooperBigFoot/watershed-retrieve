@@ -7,13 +7,15 @@ class CountryInfo(NamedTuple):
     name: str
     file_stem: str
     gauge_prefix: str
+    has_data: bool = True
 
 
-def _country(name: str, gauge_prefix: str | None = None) -> CountryInfo:
+def _country(name: str, gauge_prefix: str | None = None, has_data: bool = True) -> CountryInfo:
     return CountryInfo(
         name=name,
         file_stem=name,
         gauge_prefix=gauge_prefix if gauge_prefix is not None else f"{name}_",
+        has_data=has_data,
     )
 
 
@@ -35,8 +37,8 @@ _COUNTRIES: dict[str, CountryInfo] = {
         _country("slovenia"),
         _country("south_africa"),
         _country("spain"),
-        _country("uk_ea"),
-        _country("uk_nrfa"),
+        _country("uk_ea", has_data=False),
+        _country("uk_nrfa", has_data=False),
         _country("usa"),
     ]
 }

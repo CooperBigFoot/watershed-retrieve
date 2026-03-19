@@ -5,10 +5,10 @@ from pathlib import Path
 
 import geopandas as gpd
 
-from ._errors import GaugeNotFoundError
+from ._errors import DataUnavailableError, GaugeNotFoundError
 from ._registry import CountryInfo, available_country_names, resolve_country
-from ._store import LocalParquetStore, WatershedStore
-from ._types import CompositeGaugeId, GaugeId, WatershedResult
+from ._store import LocalParquetStore, R2ParquetStore, WatershedStore
+from ._types import Backend, CompositeGaugeId, GaugeId, WatershedResult
 
 _store: WatershedStore | None = None
 
@@ -25,20 +25,46 @@ def _strip_prefix(country: CountryInfo, composite_id: CompositeGaugeId) -> str:
     return composite_id.removeprefix(country.gauge_prefix)
 
 
-def _default_data_dir() -> Path:
-    return Path(os.environ.get("WATERSHED_RETRIEVE_DATA_DIR", "data"))
+def _check_data_available(info: CountryInfo) -> None:
+    if not info.has_data:
+        raise DataUnavailableError(
+            f"Watershed data for '{info.name}' is not yet available. "
+            "The MERIT-Hydro extraction engine was unable to produce basins for this region. "
+            "The gauging stations exist in RivRetrieve but basin delineation is pending."
+        )
+
+
+def _default_backend() -> Backend:
+    if os.environ.get("WATERSHED_RETRIEVE_DATA_DIR"):
+        return Backend.LOCAL
+    return Backend.R2
 
 
 def _get_store() -> WatershedStore:
     global _store
     if _store is None:
-        _store = LocalParquetStore(_default_data_dir())
+        backend = _default_backend()
+        if backend is Backend.LOCAL:
+            _store = LocalParquetStore(Path(os.environ["WATERSHED_RETRIEVE_DATA_DIR"]))
+        else:
+            _store = R2ParquetStore()
     return _store
 
 
-def configure(data_dir: str | Path) -> None:
+def configure(
+    data_dir: str | Path | None = None, *, backend: Backend | None = None, cache_dir: Path | None = None
+) -> None:
     global _store
-    _store = LocalParquetStore(Path(data_dir))
+    if data_dir is not None:
+        _store = LocalParquetStore(Path(data_dir))
+    elif backend is Backend.R2 or (backend is None and data_dir is None):
+        _store = R2ParquetStore(cache_dir=cache_dir)
+    elif backend is Backend.LOCAL:
+        env_dir = os.environ.get("WATERSHED_RETRIEVE_DATA_DIR")
+        if env_dir:
+            _store = LocalParquetStore(Path(env_dir))
+        else:
+            raise ValueError("backend=Backend.LOCAL requires data_dir or WATERSHED_RETRIEVE_DATA_DIR env var")
 
 
 def available_countries() -> list[str]:
@@ -47,6 +73,7 @@ def available_countries() -> list[str]:
 
 def available_gauges(country: str) -> list[str]:
     info = resolve_country(country)
+    _check_data_available(info)
     store = _get_store()
     composites = store.read_gauge_ids(info)
     return sorted(_strip_prefix(info, cid) for cid in composites)
@@ -54,6 +81,7 @@ def available_gauges(country: str) -> list[str]:
 
 def get_watershed(country: str, gauge_id: str) -> gpd.GeoDataFrame:
     info = resolve_country(country)
+    _check_data_available(info)
     gid = _normalize_gauge_id(gauge_id)
     composite = _to_composite(info, gid)
     store = _get_store()
@@ -67,6 +95,7 @@ def get_watershed(country: str, gauge_id: str) -> gpd.GeoDataFrame:
 
 def get_watershed_with_rivers(country: str, gauge_id: str) -> WatershedResult:
     info = resolve_country(country)
+    _check_data_available(info)
     gid = _normalize_gauge_id(gauge_id)
     composite = _to_composite(info, gid)
     store = _get_store()
@@ -81,6 +110,7 @@ def get_watershed_with_rivers(country: str, gauge_id: str) -> WatershedResult:
 
 def get_watersheds(country: str, gauge_ids: list[str] | None = None) -> gpd.GeoDataFrame:
     info = resolve_country(country)
+    _check_data_available(info)
     store = _get_store()
     if gauge_ids is not None:
         composites = [_to_composite(info, _normalize_gauge_id(g)) for g in gauge_ids]
@@ -97,6 +127,7 @@ def get_watersheds(country: str, gauge_ids: list[str] | None = None) -> gpd.GeoD
 
 def get_watersheds_with_rivers(country: str, gauge_ids: list[str] | None = None) -> WatershedResult:
     info = resolve_country(country)
+    _check_data_available(info)
     store = _get_store()
     if gauge_ids is not None:
         composites = [_to_composite(info, _normalize_gauge_id(g)) for g in gauge_ids]
