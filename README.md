@@ -10,7 +10,7 @@ Instant access to ~60,000 pre-delineated MERIT-Hydro watershed boundaries and ri
 
 This library is a community contribution to the [RivRetrieve](https://github.com/kratzert/RivRetrieve-Python) ecosystem. Where RivRetrieve provides observed streamflow time series for gauging stations worldwide, **watershed-retrieve** adds the corresponding watershed boundaries and river networks, delineated on the [MERIT-Hydro](http://hydro.iis.u-tokyo.ac.jp/~yamadai/MERIT_Hydro/) digital elevation model.
 
-The watershed delineation was performed using a Rust reimplementation of the algorithm described in [mheberger/delineator](https://github.com/mheberger/delineator).
+The watershed delineation was performed using a Rust reimplementation of the algorithm described in [mheberger/delineator](https://github.com/mheberger/delineator). This is the same methodology used by [CAMELS-DE](https://doi.org/10.5194/essd-16-5625-2024) (Loritz et al., 2024) to derive consistent catchment boundaries for 1582 gauging stations across Germany from MERIT Hydro.
 
 See the original proposal: [kratzert/RivRetrieve-Python#87](https://github.com/kratzert/RivRetrieve-Python/issues/87).
 

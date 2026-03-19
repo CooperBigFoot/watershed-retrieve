@@ -1,6 +1,6 @@
 [project]
 name = "watershed-retrieve"
-version = "1.0.2"
+version = "1.0.3"
 description = "Pre-delineated MERIT-Hydro watershed boundaries for ~60,000 gauging stations across 16 countries"
 readme = "README.md"
 authors = [{ name = "Nicolas Lazaro", email = "nlazaro@ethz.ch" }]
@@ -33,10 +33,12 @@ build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
-    "pytest>=8.3",       # tests
+    "pytest>=8.3", # tests
     "pytest-cov>=6.2.1",
-    "ruff>=0.12",        # linter + formatter
+    "ruff>=0.12", # linter + formatter
     "bump-my-version>=1.2.7",
+    "matplotlib>=3.10.8",
+    "cartopy>=0.25.0",
 ]
 
 # -----------------------
@@ -86,7 +88,7 @@ markers = [
 # Bump My Version
 # -----------------------
 [tool.bumpversion]
-current_version = "1.0.2"
+current_version = "1.0.3"
 commit = false
 tag = false
 allow_dirty = true
