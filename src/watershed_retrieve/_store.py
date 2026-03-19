@@ -7,8 +7,9 @@ from typing import Protocol, runtime_checkable
 import geopandas as gpd
 import pandas as pd
 from pyarrow.fs import FSSpecHandler, PyFileSystem
+from pyarrow.lib import ArrowInvalid
 
-from ._errors import DataNotFoundError, R2ConnectionError
+from ._errors import CorruptedDataError, DataNotFoundError, R2ConnectionError
 from ._registry import CountryInfo
 from ._types import CompositeGaugeId
 
@@ -51,9 +52,19 @@ class LocalParquetStore:
         path: Path,
         gauge_ids: list[CompositeGaugeId] | None,
     ) -> gpd.GeoDataFrame:
+        if gauge_ids is not None and len(gauge_ids) == 0:
+            return gpd.GeoDataFrame()
         self._ensure_exists(path)
-        filters: list[tuple[str, str, list[str]]] | None = [("gauge_id", "in", gauge_ids)] if gauge_ids else None
-        return gpd.read_parquet(path, filters=filters)
+        filters: list[tuple[str, str, list[str]]] | None = (
+            [("gauge_id", "in", gauge_ids)] if gauge_ids is not None else None
+        )
+        try:
+            gdf = gpd.read_parquet(path, filters=filters)
+        except ArrowInvalid as exc:
+            raise CorruptedDataError(
+                f"Data file appears corrupted: {path}. Try re-downloading or report this issue. Detail: {exc}"
+            ) from exc
+        return gdf
 
     def read_watersheds(
         self,
@@ -93,11 +104,19 @@ class R2ParquetStore:
         return f"{_R2_BASE_URL}/{country.file_stem}_{suffix}.parquet"
 
     def _read_geo(self, url: str, gauge_ids: list[CompositeGaugeId] | None) -> gpd.GeoDataFrame:
-        filters: list[tuple[str, str, list[str]]] | None = [("gauge_id", "in", gauge_ids)] if gauge_ids else None
+        if gauge_ids is not None and len(gauge_ids) == 0:
+            return gpd.GeoDataFrame()
+        filters: list[tuple[str, str, list[str]]] | None = (
+            [("gauge_id", "in", gauge_ids)] if gauge_ids is not None else None
+        )
         try:
             return gpd.read_parquet(url, filesystem=self._fs, filters=filters)
         except FileNotFoundError:
             raise DataNotFoundError(f"Remote data file not found: {url}") from None
+        except ArrowInvalid as exc:
+            raise CorruptedDataError(
+                f"Remote data file appears corrupted: {url}. This is a known issue — please report it. Detail: {exc}"
+            ) from exc
         except (OSError, ConnectionError) as exc:
             raise R2ConnectionError(f"Failed to fetch data from R2: {exc}") from exc
 

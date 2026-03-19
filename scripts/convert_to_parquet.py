@@ -37,7 +37,7 @@ REGIONS: list[RegionSpec] = [
     RegionSpec("poland", "poland"),
     RegionSpec("portugal", "portugal"),
     RegionSpec("slovenia", "slovenia"),
-    RegionSpec("south", "south_africa"),
+    RegionSpec("south_africa", "south_africa"),
     RegionSpec("spain", "spain"),
     RegionSpec("uk_ea", "uk_ea"),
     RegionSpec("uk_nrfa", "uk_nrfa"),
@@ -82,6 +82,11 @@ def convert(input_dir: Path, output_dir: Path) -> None:
             t0 = time.time()
             print(f"Reading {region.key}.gpkg layer={layer} ...", flush=True)
             gdf = gpd.read_file(path, layer=layer)
+            invalid_mask = ~gdf.geometry.is_valid
+            n_invalid = invalid_mask.sum()
+            if n_invalid > 0:
+                print(f"  Repairing {n_invalid} invalid geometries ...", flush=True)
+                gdf.geometry = gdf.make_valid()
             nrows = len(gdf)
 
             if region.key != region.output_name and "country" in gdf.columns:

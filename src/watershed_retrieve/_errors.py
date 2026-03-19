@@ -23,3 +23,7 @@ class DataUnavailableError(WatershedRetrieveError):
 
 class R2ConnectionError(WatershedRetrieveError):
     pass
+
+
+class CorruptedDataError(WatershedRetrieveError):
+    pass

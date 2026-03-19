@@ -1,4 +1,4 @@
-__version__ = "1.0.3"
+__version__ = "1.0.4"
 
 from ._api import (
     available_countries,
@@ -10,6 +10,7 @@ from ._api import (
     get_watersheds_with_rivers,
 )
 from ._errors import (
+    CorruptedDataError,
     CountryNotFoundError,
     DataNotFoundError,
     DataUnavailableError,
@@ -29,6 +30,7 @@ __all__ = [
     "get_watersheds",
     "get_watersheds_with_rivers",
     "Backend",
+    "CorruptedDataError",
     "CountryNotFoundError",
     "DataNotFoundError",
     "DataUnavailableError",

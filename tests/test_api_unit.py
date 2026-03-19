@@ -94,3 +94,8 @@ class TestGetWatersheds:
     def test_returns_geodataframe(self, fake_store: FakeWatershedStore) -> None:
         api_mod._store = fake_store
         assert isinstance(wr.get_watersheds("portugal"), gpd.GeoDataFrame)
+
+    def test_empty_gauge_ids_returns_empty(self, fake_store: FakeWatershedStore) -> None:
+        api_mod._store = fake_store
+        result = wr.get_watersheds("portugal", [])
+        assert len(result) == 0

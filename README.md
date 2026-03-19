@@ -60,7 +60,7 @@ wr.available_countries()
 
 # List gauge IDs for a country
 wr.available_gauges("portugal")
-# -> ['02G-02H', '02O-01H', ..., '16J-01H']  (73 gauges)
+# -> ['02G-02H', '02O-01H', ..., '16J-01H']  (~710 gauges)
 ```
 
 ### Single Watershed
@@ -78,7 +78,7 @@ watershed, rivers = result
 
 ```python
 # All watersheds for a country
-gdf = wr.get_watersheds("portugal")  # -> GeoDataFrame (73 rows)
+gdf = wr.get_watersheds("portugal")  # -> GeoDataFrame (~710 rows)
 
 # Subset by gauge IDs
 gdf = wr.get_watersheds("portugal", ["04K/04A", "05G/01A"])
@@ -117,24 +117,24 @@ from watershed_retrieve import (
 
 | Country | Gauges | Status |
 |---------|--------|--------|
-| Australia | ~5,200 | Available |
-| Brazil | ~4,300 | Available |
-| Canada | ~5,800 | Available |
-| Chile | ~500 | Available |
-| Czech Republic | ~400 | Available |
-| France | ~5,400 | Available |
-| Germany | ~500 | Available |
-| Japan | ~1,200 | Available |
-| Lithuania | ~70 | Available |
-| Norway | ~600 | Available |
-| Poland | ~600 | Available |
-| Portugal | 73 | Available |
-| Slovenia | ~200 | Available |
-| South Africa | ~900 | Available |
-| Spain | ~600 | Available |
-| UK (EA) | ~1,500 | Pending — MERIT-Hydro coverage gap |
-| UK (NRFA) | ~1,500 | Pending — MERIT-Hydro coverage gap |
-| USA | ~32,000 | Available |
+| Australia | ~6,200 | Available |
+| Brazil | ~4,600 | Available |
+| Canada | ~7,600 | Available |
+| Chile | ~540 | Available |
+| Czech Republic | ~830 | Available |
+| France | ~5,300 | Available |
+| Germany | ~190 | Available |
+| Japan | ~820 | Available |
+| Lithuania | ~100 | Available |
+| Norway | ~4,500 | Available |
+| Poland | ~1,300 | Available |
+| Portugal | ~710 | Available |
+| Slovenia | ~710 | Available |
+| South Africa | ~1,290 | Available |
+| Spain | ~1,500 | Available |
+| UK (EA) | — | Pending — MERIT-Hydro coverage gap |
+| UK (NRFA) | — | Pending — MERIT-Hydro coverage gap |
+| USA | ~23,900 | Available |
 
 ## Development
 

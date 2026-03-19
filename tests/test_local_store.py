@@ -3,6 +3,7 @@ from pathlib import Path
 import geopandas as gpd
 import pytest
 
+from watershed_retrieve import CorruptedDataError
 from watershed_retrieve._errors import DataNotFoundError
 from watershed_retrieve._registry import CountryInfo
 from watershed_retrieve._store import LocalParquetStore
@@ -38,6 +39,11 @@ class TestLocalParquetStoreReadWatersheds:
         with pytest.raises(DataNotFoundError, match="Data file not found"):
             store.read_watersheds(PORTUGAL)
 
+    def test_empty_gauge_ids_returns_empty(self, synthetic_parquet_dir: Path) -> None:
+        store = LocalParquetStore(synthetic_parquet_dir)
+        result = store.read_watersheds(PORTUGAL, [])
+        assert len(result) == 0
+
 
 class TestLocalParquetStoreReadRivers:
     def test_reads_all_rows(self, synthetic_parquet_dir: Path) -> None:
@@ -55,6 +61,11 @@ class TestLocalParquetStoreReadRivers:
         gdf = store.read_rivers(PORTUGAL, [CompositeGaugeId("portugal_G001")])
         assert len(gdf) == 1
 
+    def test_empty_gauge_ids_returns_empty(self, synthetic_parquet_dir: Path) -> None:
+        store = LocalParquetStore(synthetic_parquet_dir)
+        result = store.read_rivers(PORTUGAL, [])
+        assert len(result) == 0
+
 
 class TestLocalParquetStoreReadGaugeIds:
     def test_returns_all_gauge_ids(self, synthetic_parquet_dir: Path) -> None:
@@ -71,3 +82,12 @@ class TestLocalParquetStoreReadGaugeIds:
         store = LocalParquetStore(tmp_path)
         with pytest.raises(DataNotFoundError):
             store.read_gauge_ids(PORTUGAL)
+
+
+class TestCorruptedParquet:
+    def test_corrupted_file_raises_corrupted_data_error(self, tmp_path: Path) -> None:
+        store = LocalParquetStore(tmp_path)
+        corrupt_path = tmp_path / "portugal_watersheds.parquet"
+        corrupt_path.write_bytes(b"not a parquet file")
+        with pytest.raises(CorruptedDataError, match="corrupted"):
+            store.read_watersheds(PORTUGAL)
