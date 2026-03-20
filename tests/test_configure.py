@@ -32,7 +32,15 @@ class TestConfigure:
             assert isinstance(api_mod._store, LocalParquetStore)
 
     def test_backend_local_without_env_var_raises(self) -> None:
-        with patch.dict("os.environ", {}, clear=True), pytest.raises(ValueError, match="requires data_dir"):
+        from watershed_retrieve import ConfigurationError
+
+        with patch.dict("os.environ", {}, clear=True), pytest.raises(ConfigurationError, match="requires data_dir"):
+            wr.configure(backend=Backend.LOCAL)
+
+    def test_configuration_error_is_watershed_retrieve_error(self) -> None:
+        from watershed_retrieve import WatershedRetrieveError
+
+        with patch.dict("os.environ", {}, clear=True), pytest.raises(WatershedRetrieveError):
             wr.configure(backend=Backend.LOCAL)
 
     def test_reconfigure_replaces_store(self, synthetic_parquet_dir: Path) -> None:

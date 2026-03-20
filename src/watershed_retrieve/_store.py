@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import logging
 from pathlib import Path
 from typing import Protocol, runtime_checkable
 
@@ -15,8 +14,6 @@ from ._types import CompositeGaugeId
 
 _R2_BASE_URL = "https://pub-52975bdd539f43819da3692334f4999c.r2.dev/watershed-retrieve/v1"
 _DEFAULT_CACHE_DIR = Path.home() / ".cache" / "watershed-retrieve"
-
-log = logging.getLogger(__name__)
 
 
 @runtime_checkable
@@ -85,7 +82,12 @@ class LocalParquetStore:
     def read_gauge_ids(self, country: CountryInfo) -> list[CompositeGaugeId]:
         path = self._parquet_path(country, "watersheds")
         self._ensure_exists(path)
-        df: pd.DataFrame = pd.read_parquet(path, columns=["gauge_id"])
+        try:
+            df: pd.DataFrame = pd.read_parquet(path, columns=["gauge_id"])
+        except ArrowInvalid as exc:
+            raise CorruptedDataError(
+                f"Data file appears corrupted: {path}. Try re-downloading or report this issue. Detail: {exc}"
+            ) from exc
         return [CompositeGaugeId(gid) for gid in df["gauge_id"]]
 
 
@@ -136,6 +138,10 @@ class R2ParquetStore:
             df: pd.DataFrame = pd.read_parquet(url, columns=["gauge_id"], filesystem=self._fs)
         except FileNotFoundError:
             raise DataNotFoundError(f"Remote data file not found: {url}") from None
+        except ArrowInvalid as exc:
+            raise CorruptedDataError(
+                f"Remote data file appears corrupted: {url}. This is a known issue — please report it. Detail: {exc}"
+            ) from exc
         except (OSError, ConnectionError) as exc:
             raise R2ConnectionError(f"Failed to fetch data from R2: {exc}") from exc
         return [CompositeGaugeId(gid) for gid in df["gauge_id"]]

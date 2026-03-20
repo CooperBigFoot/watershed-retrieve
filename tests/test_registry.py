@@ -1,6 +1,6 @@
 import pytest
 
-from watershed_retrieve import CountryNotFoundError
+from watershed_retrieve import CountryNotFoundError, InvalidArgumentError
 from watershed_retrieve._registry import available_country_names, resolve_country
 
 
@@ -38,6 +38,34 @@ class TestResolveCountry:
         with pytest.raises(CountryNotFoundError, match="australia"):
             resolve_country("atlantis")
 
+    def test_south_africa_with_space(self) -> None:
+        info = resolve_country("south africa")
+        assert info.name == "south_africa"
+
+    def test_south_africa_titlecase(self) -> None:
+        info = resolve_country("South Africa")
+        assert info.name == "south_africa"
+
+    def test_alias_southafrica_no_space(self) -> None:
+        info = resolve_country("southafrica")
+        assert info.name == "south_africa"
+
+    def test_czech_republic_with_space(self) -> None:
+        info = resolve_country("czech republic")
+        assert info.name == "czech"
+
+    def test_czech_republic_titlecase(self) -> None:
+        info = resolve_country("Czech Republic")
+        assert info.name == "czech"
+
+    def test_czechrepublic_concatenated(self) -> None:
+        info = resolve_country("czechrepublic")
+        assert info.name == "czech"
+
+    def test_error_message_preserves_raw(self) -> None:
+        with pytest.raises(CountryNotFoundError, match="Czech Republick"):
+            resolve_country("Czech Republick")
+
 
 class TestAvailableCountryNames:
     def test_returns_sorted_list(self) -> None:
@@ -72,3 +100,23 @@ class TestCountryInfo:
     def test_uk_nrfa_has_no_data(self) -> None:
         info = resolve_country("uk_nrfa")
         assert info.has_data is False
+
+
+class TestResolveCountryInputValidation:
+    def test_none_raises_invalid_argument_error(self) -> None:
+        with pytest.raises(InvalidArgumentError, match="country must be a str"):
+            resolve_country(None)
+
+    def test_int_raises_invalid_argument_error(self) -> None:
+        with pytest.raises(InvalidArgumentError, match="got 'int'"):
+            resolve_country(42)
+
+    def test_invalid_argument_is_type_error(self) -> None:
+        with pytest.raises(TypeError):
+            resolve_country(None)
+
+    def test_invalid_argument_is_watershed_retrieve_error(self) -> None:
+        from watershed_retrieve import WatershedRetrieveError
+
+        with pytest.raises(WatershedRetrieveError):
+            resolve_country(None)

@@ -5,7 +5,7 @@ from pathlib import Path
 
 import geopandas as gpd
 
-from ._errors import DataUnavailableError, GaugeNotFoundError
+from ._errors import ConfigurationError, DataUnavailableError, GaugeNotFoundError, InvalidArgumentError
 from ._registry import CountryInfo, available_country_names, resolve_country
 from ._store import LocalParquetStore, R2ParquetStore, WatershedStore
 from ._types import Backend, CompositeGaugeId, GaugeId, WatershedResult
@@ -14,6 +14,8 @@ _store: WatershedStore | None = None
 
 
 def _normalize_gauge_id(raw: str) -> GaugeId:
+    if not isinstance(raw, str):
+        raise InvalidArgumentError(f"gauge_id must be a str, got {type(raw).__name__!r}")
     return GaugeId(raw.strip().replace("/", "-"))
 
 
@@ -64,7 +66,7 @@ def configure(
         if env_dir:
             _store = LocalParquetStore(Path(env_dir))
         else:
-            raise ValueError("backend=Backend.LOCAL requires data_dir or WATERSHED_RETRIEVE_DATA_DIR env var")
+            raise ConfigurationError("backend=Backend.LOCAL requires data_dir or WATERSHED_RETRIEVE_DATA_DIR env var")
 
 
 def available_countries() -> list[str]:
@@ -108,6 +110,20 @@ def get_watershed_with_rivers(country: str, gauge_id: str) -> WatershedResult:
     return WatershedResult(watershed, rivers)
 
 
+def _check_all_found(
+    raw_ids: list[str],
+    composites: list[CompositeGaugeId],
+    found: set[str],
+    info: CountryInfo,
+) -> None:
+    missing = [raw for raw, comp in zip(raw_ids, composites, strict=True) if comp not in found]
+    if missing:
+        formatted = ", ".join(f"'{g}'" for g in missing)
+        raise GaugeNotFoundError(
+            f"Gauge(s) {formatted} not found in '{info.name}'. Use available_gauges('{info.name}') to list valid IDs."
+        )
+
+
 def get_watersheds(country: str, gauge_ids: list[str] | None = None) -> gpd.GeoDataFrame:
     info = resolve_country(country)
     _check_data_available(info)
@@ -116,11 +132,7 @@ def get_watersheds(country: str, gauge_ids: list[str] | None = None) -> gpd.GeoD
         composites = [_to_composite(info, _normalize_gauge_id(g)) for g in gauge_ids]
         result = store.read_watersheds(info, composites)
         found = set(result["gauge_id"]) if not result.empty else set()
-        for raw, composite in zip(gauge_ids, composites, strict=True):
-            if composite not in found:
-                raise GaugeNotFoundError(
-                    f"Gauge '{raw}' not found in '{info.name}'. Use available_gauges('{info.name}') to list valid IDs."
-                )
+        _check_all_found(gauge_ids, composites, found, info)
         return result
     return store.read_watersheds(info)
 
@@ -133,11 +145,7 @@ def get_watersheds_with_rivers(country: str, gauge_ids: list[str] | None = None)
         composites = [_to_composite(info, _normalize_gauge_id(g)) for g in gauge_ids]
         watershed = store.read_watersheds(info, composites)
         found = set(watershed["gauge_id"]) if not watershed.empty else set()
-        for raw, composite in zip(gauge_ids, composites, strict=True):
-            if composite not in found:
-                raise GaugeNotFoundError(
-                    f"Gauge '{raw}' not found in '{info.name}'. Use available_gauges('{info.name}') to list valid IDs."
-                )
+        _check_all_found(gauge_ids, composites, found, info)
         rivers = store.read_rivers(info, composites)
         return WatershedResult(watershed, rivers)
     watershed = store.read_watersheds(info)

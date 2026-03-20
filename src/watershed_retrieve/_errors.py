@@ -27,3 +27,11 @@ class R2ConnectionError(WatershedRetrieveError):
 
 class CorruptedDataError(WatershedRetrieveError):
     pass
+
+
+class InvalidArgumentError(WatershedRetrieveError, TypeError):
+    pass
+
+
+class ConfigurationError(WatershedRetrieveError):
+    pass

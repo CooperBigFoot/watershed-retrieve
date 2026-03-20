@@ -1,6 +1,6 @@
 from typing import NamedTuple
 
-from ._errors import CountryNotFoundError
+from ._errors import CountryNotFoundError, InvalidArgumentError
 
 
 class CountryInfo(NamedTuple):
@@ -46,18 +46,23 @@ _COUNTRIES: dict[str, CountryInfo] = {
 _ALIASES: dict[str, str] = {
     "french": "france",
     "southafrican": "south_africa",
+    "southafrica": "south_africa",
     "germany_berlin": "germany",
+    "czech_republic": "czech",
+    "czechrepublic": "czech",
 }
 
 
 def resolve_country(raw: str) -> CountryInfo:
-    key = raw.strip().lower()
+    if not isinstance(raw, str):
+        raise InvalidArgumentError(f"country must be a str, got {type(raw).__name__!r}")
+    key = raw.strip().lower().replace(" ", "_")
     if key in _COUNTRIES:
         return _COUNTRIES[key]
     if key in _ALIASES:
         return _COUNTRIES[_ALIASES[key]]
     available = ", ".join(available_country_names())
-    raise CountryNotFoundError(f"Country '{key}' not supported. Available: {available}")
+    raise CountryNotFoundError(f"Country '{raw.strip()}' not supported. Available: {available}")
 
 
 def available_country_names() -> list[str]:

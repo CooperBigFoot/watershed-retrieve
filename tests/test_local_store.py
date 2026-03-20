@@ -91,3 +91,12 @@ class TestCorruptedParquet:
         corrupt_path.write_bytes(b"not a parquet file")
         with pytest.raises(CorruptedDataError, match="corrupted"):
             store.read_watersheds(PORTUGAL)
+
+
+class TestLocalReadGaugeIdsCorrupted:
+    def test_corrupted_file_raises_corrupted_data_error(self, tmp_path: Path) -> None:
+        store = LocalParquetStore(tmp_path)
+        corrupt_path = tmp_path / "portugal_watersheds.parquet"
+        corrupt_path.write_bytes(b"not a parquet file")
+        with pytest.raises(CorruptedDataError, match="corrupted"):
+            store.read_gauge_ids(PORTUGAL)

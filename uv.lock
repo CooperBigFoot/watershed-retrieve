@@ -1437,7 +1437,7 @@ wheels = [
 
 [[package]]
 name = "watershed-retrieve"
-version = "1.0.3"
+version = "1.0.5"
 source = { editable = "." }
 dependencies = [
     { name = "fsspec", extra = ["http"] },

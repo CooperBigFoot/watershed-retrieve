@@ -1,4 +1,4 @@
-__version__ = "1.0.4"
+__version__ = "1.0.5"
 
 from ._api import (
     available_countries,
@@ -10,11 +10,13 @@ from ._api import (
     get_watersheds_with_rivers,
 )
 from ._errors import (
+    ConfigurationError,
     CorruptedDataError,
     CountryNotFoundError,
     DataNotFoundError,
     DataUnavailableError,
     GaugeNotFoundError,
+    InvalidArgumentError,
     R2ConnectionError,
     WatershedRetrieveError,
 )
@@ -30,11 +32,13 @@ __all__ = [
     "get_watersheds",
     "get_watersheds_with_rivers",
     "Backend",
+    "ConfigurationError",
     "CorruptedDataError",
     "CountryNotFoundError",
     "DataNotFoundError",
     "DataUnavailableError",
     "GaugeNotFoundError",
+    "InvalidArgumentError",
     "R2ConnectionError",
     "WatershedRetrieveError",
     "WatershedResult",

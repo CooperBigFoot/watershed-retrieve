@@ -8,6 +8,7 @@ from watershed_retrieve import (
     CountryNotFoundError,
     DataUnavailableError,
     GaugeNotFoundError,
+    InvalidArgumentError,
 )
 
 
@@ -49,6 +50,14 @@ class TestAvailableGauges:
         with pytest.raises(DataUnavailableError, match="not yet available"):
             wr.available_gauges("uk_ea")
 
+    def test_none_country_raises(self) -> None:
+        with pytest.raises(InvalidArgumentError):
+            wr.available_gauges(None)
+
+    def test_int_country_raises(self) -> None:
+        with pytest.raises(InvalidArgumentError):
+            wr.available_gauges(42)
+
 
 class TestGetWatershed:
     def test_returns_single_row(self, fake_store: FakeWatershedStore) -> None:
@@ -73,6 +82,16 @@ class TestGetWatershed:
     def test_unavailable_region_raises(self) -> None:
         with pytest.raises(DataUnavailableError):
             wr.get_watershed("uk_nrfa", "G001")
+
+    def test_none_gauge_id_raises(self, fake_store: FakeWatershedStore) -> None:
+        api_mod._store = fake_store
+        with pytest.raises(InvalidArgumentError):
+            wr.get_watershed("portugal", None)
+
+    def test_int_gauge_id_raises(self, fake_store: FakeWatershedStore) -> None:
+        api_mod._store = fake_store
+        with pytest.raises(InvalidArgumentError):
+            wr.get_watershed("portugal", 123)
 
 
 class TestGetWatersheds:
@@ -99,3 +118,58 @@ class TestGetWatersheds:
         api_mod._store = fake_store
         result = wr.get_watersheds("portugal", [])
         assert len(result) == 0
+
+    def test_multiple_missing_gauges_all_reported(self, fake_store: FakeWatershedStore) -> None:
+        api_mod._store = fake_store
+        with pytest.raises(GaugeNotFoundError, match="ZZZZZ") as exc_info:
+            wr.get_watersheds("portugal", ["ZZZZZ", "YYYYY"])
+        assert "YYYYY" in str(exc_info.value)
+
+    def test_all_missing_reports_all(self, fake_store: FakeWatershedStore) -> None:
+        api_mod._store = fake_store
+        with pytest.raises(GaugeNotFoundError) as exc_info:
+            wr.get_watersheds("portugal", ["AAA", "BBB", "CCC"])
+        msg = str(exc_info.value)
+        assert "AAA" in msg
+        assert "BBB" in msg
+        assert "CCC" in msg
+
+
+class TestGetWatershedsWithRivers:
+    def test_all_gauges(self, fake_store: FakeWatershedStore) -> None:
+        api_mod._store = fake_store
+        result = wr.get_watersheds_with_rivers("portugal")
+        assert len(result.watershed) == 3
+        assert len(result.rivers) == 3
+
+    def test_subset(self, fake_store: FakeWatershedStore) -> None:
+        api_mod._store = fake_store
+        result = wr.get_watersheds_with_rivers("portugal", ["G001"])
+        assert len(result.watershed) == 1
+
+    def test_missing_gauge_raises(self, fake_store: FakeWatershedStore) -> None:
+        api_mod._store = fake_store
+        with pytest.raises(GaugeNotFoundError, match="ZZZZZ"):
+            wr.get_watersheds_with_rivers("portugal", ["ZZZZZ"])
+
+    def test_multiple_missing_gauges_all_reported(self, fake_store: FakeWatershedStore) -> None:
+        api_mod._store = fake_store
+        with pytest.raises(GaugeNotFoundError) as exc_info:
+            wr.get_watersheds_with_rivers("portugal", ["ZZZZZ", "YYYYY"])
+        msg = str(exc_info.value)
+        assert "ZZZZZ" in msg
+        assert "YYYYY" in msg
+
+
+class TestNormalizeGaugeId:
+    def test_none_raises_invalid_argument_error(self) -> None:
+        from watershed_retrieve._api import _normalize_gauge_id
+
+        with pytest.raises(InvalidArgumentError, match="gauge_id must be a str"):
+            _normalize_gauge_id(None)
+
+    def test_int_raises_invalid_argument_error(self) -> None:
+        from watershed_retrieve._api import _normalize_gauge_id
+
+        with pytest.raises(InvalidArgumentError, match="got 'int'"):
+            _normalize_gauge_id(42)
