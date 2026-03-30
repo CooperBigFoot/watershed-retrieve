@@ -49,10 +49,13 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
 @pytest.fixture(autouse=True)
 def _reset_global_store() -> None:
     import watershed_retrieve._api as api_mod
+    from watershed_retrieve._types import Fabric
 
     api_mod._store = None
+    api_mod._fabric = Fabric.MERIT
     yield
     api_mod._store = None
+    api_mod._fabric = Fabric.MERIT
 
 
 # ---------------------------------------------------------------------------

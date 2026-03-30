@@ -10,7 +10,7 @@ from pyarrow.lib import ArrowInvalid
 
 from ._errors import CorruptedDataError, DataNotFoundError, R2ConnectionError
 from ._registry import CountryInfo
-from ._types import CompositeGaugeId
+from ._types import CompositeGaugeId, Fabric
 
 _R2_BASE_URL = "https://pub-52975bdd539f43819da3692334f4999c.r2.dev/watershed-retrieve/v1"
 _DEFAULT_CACHE_DIR = Path.home() / ".cache" / "watershed-retrieve"
@@ -91,9 +91,16 @@ class LocalParquetStore:
         return [CompositeGaugeId(gid) for gid in df["gauge_id"]]
 
 
+_FABRIC_SUBPATHS: dict[Fabric, str] = {
+    Fabric.MERIT: "",
+    Fabric.HYDROSHEDS_V1: "hydrosheds-v1/",
+}
+
+
 class R2ParquetStore:
-    def __init__(self, cache_dir: Path | None = None) -> None:
+    def __init__(self, cache_dir: Path | None = None, fabric: Fabric = Fabric.MERIT) -> None:
         self._cache_dir = cache_dir or _DEFAULT_CACHE_DIR
+        self._fabric = fabric
         self._fs = self._build_fs()
 
     def _build_fs(self) -> PyFileSystem:
@@ -103,7 +110,8 @@ class R2ParquetStore:
         return PyFileSystem(FSSpecHandler(http_fs))
 
     def _remote_path(self, country: CountryInfo, suffix: str) -> str:
-        return f"{_R2_BASE_URL}/{country.file_stem}_{suffix}.parquet"
+        subpath = _FABRIC_SUBPATHS[self._fabric]
+        return f"{_R2_BASE_URL}/{subpath}{country.file_stem}_{suffix}.parquet"
 
     def _read_geo(self, url: str, gauge_ids: list[CompositeGaugeId] | None) -> gpd.GeoDataFrame:
         if gauge_ids is not None and len(gauge_ids) == 0:

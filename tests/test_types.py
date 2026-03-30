@@ -1,7 +1,7 @@
 import geopandas as gpd
 from shapely.geometry import box
 
-from watershed_retrieve._types import Backend, WatershedResult
+from watershed_retrieve._types import Backend, Fabric, WatershedResult
 
 
 class TestWatershedResult:
@@ -38,3 +38,14 @@ class TestBackend:
 
     def test_two_variants(self) -> None:
         assert len(Backend) == 2
+
+
+class TestFabric:
+    def test_merit_variant(self) -> None:
+        assert Fabric.MERIT.name == "MERIT"
+
+    def test_hydrosheds_v1_variant(self) -> None:
+        assert Fabric.HYDROSHEDS_V1.name == "HYDROSHEDS_V1"
+
+    def test_two_variants(self) -> None:
+        assert len(Fabric) == 2

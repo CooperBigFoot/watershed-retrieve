@@ -6,7 +6,7 @@ import pytest
 import watershed_retrieve as wr
 import watershed_retrieve._api as api_mod
 from watershed_retrieve._store import LocalParquetStore, R2ParquetStore
-from watershed_retrieve._types import Backend
+from watershed_retrieve._types import Backend, Fabric
 
 
 class TestConfigure:
@@ -59,6 +59,29 @@ class TestDefaultBackend:
     def test_local_when_env_var_set(self, synthetic_parquet_dir: Path) -> None:
         with patch.dict("os.environ", {"WATERSHED_RETRIEVE_DATA_DIR": str(synthetic_parquet_dir)}):
             assert api_mod._default_backend() is Backend.LOCAL
+
+
+class TestConfigureFabric:
+    def test_default_fabric_is_merit(self) -> None:
+        wr.configure()
+        assert isinstance(api_mod._store, R2ParquetStore)
+        assert api_mod._store._fabric is Fabric.MERIT
+
+    def test_fabric_hydrosheds_v1(self) -> None:
+        wr.configure(fabric=Fabric.HYDROSHEDS_V1)
+        assert isinstance(api_mod._store, R2ParquetStore)
+        assert api_mod._store._fabric is Fabric.HYDROSHEDS_V1
+
+    def test_fabric_does_not_affect_local_store(self, synthetic_parquet_dir: Path) -> None:
+        wr.configure(data_dir=synthetic_parquet_dir, fabric=Fabric.HYDROSHEDS_V1)
+        assert isinstance(api_mod._store, LocalParquetStore)
+
+    def test_fabric_resets_on_reconfigure(self) -> None:
+        wr.configure(fabric=Fabric.HYDROSHEDS_V1)
+        assert api_mod._fabric is Fabric.HYDROSHEDS_V1
+        wr.configure()
+        assert api_mod._fabric is Fabric.MERIT
+        assert api_mod._store._fabric is Fabric.MERIT
 
 
 class TestGetStoreAutoInit:

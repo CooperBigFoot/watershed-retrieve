@@ -1,4 +1,4 @@
-__version__ = "1.0.5"
+__version__ = "1.1.0"
 
 from ._api import (
     available_countries,
@@ -20,7 +20,7 @@ from ._errors import (
     R2ConnectionError,
     WatershedRetrieveError,
 )
-from ._types import Backend, WatershedResult
+from ._types import Backend, Fabric, WatershedResult
 
 __all__ = [
     "__version__",
@@ -32,6 +32,7 @@ __all__ = [
     "get_watersheds",
     "get_watersheds_with_rivers",
     "Backend",
+    "Fabric",
     "ConfigurationError",
     "CorruptedDataError",
     "CountryNotFoundError",

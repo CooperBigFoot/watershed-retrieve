@@ -7,6 +7,7 @@ from watershed_retrieve import CorruptedDataError
 from watershed_retrieve._errors import DataNotFoundError, R2ConnectionError
 from watershed_retrieve._registry import CountryInfo
 from watershed_retrieve._store import _R2_BASE_URL, R2ParquetStore
+from watershed_retrieve._types import Fabric
 
 PORTUGAL = CountryInfo(name="portugal", file_stem="portugal", gauge_prefix="portugal_")
 
@@ -21,6 +22,22 @@ class TestR2ParquetStoreUrlConstruction:
         store = R2ParquetStore()
         url = store._remote_path(PORTUGAL, "rivers")
         assert url == f"{_R2_BASE_URL}/portugal_rivers.parquet"
+
+
+class TestR2ParquetStoreFabric:
+    def test_merit_remote_path(self) -> None:
+        store = R2ParquetStore(fabric=Fabric.MERIT)
+        url = store._remote_path(PORTUGAL, "watersheds")
+        assert url == f"{_R2_BASE_URL}/portugal_watersheds.parquet"
+
+    def test_hydrosheds_v1_remote_path(self) -> None:
+        store = R2ParquetStore(fabric=Fabric.HYDROSHEDS_V1)
+        url = store._remote_path(PORTUGAL, "watersheds")
+        assert url == f"{_R2_BASE_URL}/hydrosheds-v1/portugal_watersheds.parquet"
+
+    def test_default_fabric_is_merit(self) -> None:
+        store = R2ParquetStore()
+        assert store._fabric is Fabric.MERIT
 
 
 class TestR2ReadGaugeIdsErrors:

@@ -4,11 +4,15 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.13+](https://img.shields.io/badge/python-3.13%2B-blue.svg)](https://www.python.org/downloads/)
 
-Instant access to ~60,000 pre-delineated MERIT-Hydro watershed boundaries and river networks across 16 countries, served as GeoParquet. No data download required — basins are fetched on demand from a public CDN and cached locally.
+Instant access to ~60,000 pre-delineated watershed boundaries and river networks across 16 countries, served as GeoParquet. Supports multiple hydrofabrics (MERIT-Hydro and HydroSHEDS v1). No data download required — basins are fetched on demand from a public CDN and cached locally.
 
 ## Background
 
-This library is a community contribution to the [RivRetrieve](https://github.com/kratzert/RivRetrieve-Python) ecosystem. Where RivRetrieve provides observed streamflow time series for gauging stations worldwide, **watershed-retrieve** adds the corresponding watershed boundaries and river networks, delineated on the [MERIT-Hydro](http://hydro.iis.u-tokyo.ac.jp/~yamadai/MERIT_Hydro/) digital elevation model.
+This library is a community contribution to the [RivRetrieve](https://github.com/kratzert/RivRetrieve-Python) ecosystem. Where RivRetrieve provides observed streamflow time series for gauging stations worldwide, **watershed-retrieve** adds the corresponding watershed boundaries and river networks.
+
+Delineation is available on two hydrofabrics:
+- **[MERIT-Hydro](http://hydro.iis.u-tokyo.ac.jp/~yamadai/MERIT_Hydro/)** — ~90m global hydrography (default)
+- **[HydroSHEDS v1](https://www.hydrosheds.org/)** — ~90m global hydrography, alternative dataset
 
 The watershed delineation was performed using a Rust reimplementation of the algorithm described in [mheberger/delineator](https://github.com/mheberger/delineator). This is the same methodology used by [CAMELS-DE](https://doi.org/10.5194/essd-16-5625-2024) (Loritz et al., 2024) to derive consistent catchment boundaries for 1582 gauging stations across Germany from MERIT Hydro.
 
@@ -25,7 +29,7 @@ pip install watershed-retrieve
 ```python
 import watershed_retrieve as wr
 
-# Zero-config — data is fetched from R2 CDN and cached locally
+# Zero-config — data is fetched from R2 CDN and cached locally (MERIT-Hydro by default)
 watershed = wr.get_watershed("portugal", "04K/04A")
 
 # With river network
@@ -35,7 +39,22 @@ watershed, rivers = wr.get_watershed_with_rivers("portugal", "04K/04A")
 all_watersheds = wr.get_watersheds("portugal")
 ```
 
-To use a local data directory instead of the CDN:
+### Selecting a hydrofabric
+
+```python
+from watershed_retrieve import Fabric
+
+# Use HydroSHEDS v1 instead of MERIT-Hydro
+wr.configure(fabric=Fabric.HYDROSHEDS_V1)
+
+# All subsequent calls use HydroSHEDS data
+watershed = wr.get_watershed("portugal", "04K/04A")
+
+# Switch back to MERIT-Hydro
+wr.configure(fabric=Fabric.MERIT)
+```
+
+### Local data directory
 
 ```python
 # Option 1: Environment variable
@@ -111,7 +130,7 @@ from watershed_retrieve import (
 )
 ```
 
-`DataUnavailableError` is raised for regions where gauging stations are registered in RivRetrieve but MERIT-Hydro basin delineation is pending (e.g., UK regions — the British Isles fall outside MERIT-Hydro coverage).
+`DataUnavailableError` is raised for regions where gauging stations are registered in RivRetrieve but basin delineation is pending (e.g., UK regions — the British Isles fall outside MERIT-Hydro coverage).
 
 ## Supported Countries
 

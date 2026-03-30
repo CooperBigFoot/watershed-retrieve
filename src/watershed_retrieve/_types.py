@@ -12,6 +12,11 @@ class Backend(Enum):
     LOCAL = auto()
 
 
+class Fabric(Enum):
+    MERIT = auto()
+    HYDROSHEDS_V1 = auto()
+
+
 class WatershedResult(NamedTuple):
     watershed: gpd.GeoDataFrame
     rivers: gpd.GeoDataFrame

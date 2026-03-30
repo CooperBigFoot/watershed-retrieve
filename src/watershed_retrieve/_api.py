@@ -8,9 +8,10 @@ import geopandas as gpd
 from ._errors import ConfigurationError, DataUnavailableError, GaugeNotFoundError, InvalidArgumentError
 from ._registry import CountryInfo, available_country_names, resolve_country
 from ._store import LocalParquetStore, R2ParquetStore, WatershedStore
-from ._types import Backend, CompositeGaugeId, GaugeId, WatershedResult
+from ._types import Backend, CompositeGaugeId, Fabric, GaugeId, WatershedResult
 
 _store: WatershedStore | None = None
+_fabric: Fabric = Fabric.MERIT
 
 
 def _normalize_gauge_id(raw: str) -> GaugeId:
@@ -49,18 +50,23 @@ def _get_store() -> WatershedStore:
         if backend is Backend.LOCAL:
             _store = LocalParquetStore(Path(os.environ["WATERSHED_RETRIEVE_DATA_DIR"]))
         else:
-            _store = R2ParquetStore()
+            _store = R2ParquetStore(fabric=_fabric)
     return _store
 
 
 def configure(
-    data_dir: str | Path | None = None, *, backend: Backend | None = None, cache_dir: Path | None = None
+    data_dir: str | Path | None = None,
+    *,
+    backend: Backend | None = None,
+    cache_dir: Path | None = None,
+    fabric: Fabric = Fabric.MERIT,
 ) -> None:
-    global _store
+    global _store, _fabric
+    _fabric = fabric
     if data_dir is not None:
         _store = LocalParquetStore(Path(data_dir))
     elif backend is Backend.R2 or (backend is None and data_dir is None):
-        _store = R2ParquetStore(cache_dir=cache_dir)
+        _store = R2ParquetStore(cache_dir=cache_dir, fabric=fabric)
     elif backend is Backend.LOCAL:
         env_dir = os.environ.get("WATERSHED_RETRIEVE_DATA_DIR")
         if env_dir:
