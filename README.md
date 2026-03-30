@@ -134,26 +134,26 @@ from watershed_retrieve import (
 
 ## Supported Countries
 
-| Country | Gauges | Status |
-|---------|--------|--------|
-| Australia | ~6,200 | Available |
-| Brazil | ~4,600 | Available |
-| Canada | ~7,600 | Available |
-| Chile | ~540 | Available |
-| Czech Republic | ~830 | Available |
-| France | ~5,300 | Available |
-| Germany | ~190 | Available |
-| Japan | ~820 | Available |
-| Lithuania | ~100 | Available |
-| Norway | ~4,500 | Available |
-| Poland | ~1,300 | Available |
-| Portugal | ~710 | Available |
-| Slovenia | ~710 | Available |
-| South Africa | ~1,290 | Available |
-| Spain | ~1,500 | Available |
-| UK (EA) | — | Pending — MERIT-Hydro coverage gap |
-| UK (NRFA) | — | Pending — MERIT-Hydro coverage gap |
-| USA | ~23,900 | Available |
+| Country | MERIT-Hydro | HydroSHEDS v1 | Status |
+|---------|-------------|---------------|--------|
+| Australia | ~6,210 | ~6,240 | Available |
+| Brazil | ~4,600 | ~4,610 | Available |
+| Canada | ~7,630 | ~7,240 | Available |
+| Chile | ~540 | ~530 | Available |
+| Czech Republic | ~820 | ~820 | Available |
+| France | ~5,330 | ~5,360 | Available |
+| Germany | ~190 | ~190 | Available |
+| Japan | ~820 | ~810 | Available |
+| Lithuania | ~100 | ~100 | Available |
+| Norway | ~4,540 | ~1,460 | Available |
+| Poland | ~1,300 | ~1,300 | Available |
+| Portugal | ~710 | ~710 | Available |
+| Slovenia | ~710 | ~710 | Available |
+| South Africa | ~1,290 | ~1,290 | Available |
+| Spain | ~1,480 | ~1,490 | Available |
+| UK (EA) | — | — | Pending — coverage gap |
+| UK (NRFA) | — | — | Pending — coverage gap |
+| USA | ~23,860 | ~23,700 | Available |
 
 ## Development
 
