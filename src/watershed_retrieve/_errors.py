@@ -35,3 +35,7 @@ class InvalidArgumentError(WatershedRetrieveError, TypeError):
 
 class ConfigurationError(WatershedRetrieveError):
     pass
+
+
+class DelineationError(WatershedRetrieveError):
+    pass

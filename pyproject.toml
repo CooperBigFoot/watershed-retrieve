@@ -1,6 +1,6 @@
 [project]
 name = "watershed-retrieve"
-version = "1.1.1"
+version = "1.1.2"
 description = "Pre-delineated MERIT-Hydro watershed boundaries for ~60,000 gauging stations across 16 countries"
 readme = "README.md"
 authors = [{ name = "Nicolas Lazaro", email = "nlazaro@ethz.ch" }]
@@ -20,6 +20,9 @@ dependencies = [
     "pyarrow>=23.0.1",
     "fsspec[http]>=2024.1.0",
 ]
+
+[project.optional-dependencies]
+delineate = ["pyshed>=0.1.0"]
 
 [project.urls]
 Homepage = "https://github.com/CooperBigFoot/watershed-retrieve"
@@ -88,7 +91,7 @@ markers = [
 # Bump My Version
 # -----------------------
 [tool.bumpversion]
-current_version = "1.1.1"
+current_version = "1.1.2"
 commit = false
 tag = false
 allow_dirty = true
@@ -104,4 +107,6 @@ search = '__version__ = "{current_version}"'
 replace = '__version__ = "{new_version}"'
 
 [tool.uv.sources]
-# ctrl-freak = { git = "https://github.com/hydrosolutions/ctrl-freak.git", rev = "main" } # example of how to add a git dependency
+# pyshed is a maturin-built Rust extension from the shed repo.
+# This path is for local co-development; adjust if your layout differs.
+pyshed = { path = "../shed/crates/python", editable = true }

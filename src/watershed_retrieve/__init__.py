@@ -1,4 +1,4 @@
-__version__ = "1.1.1"
+__version__ = "1.1.2"
 
 from ._api import (
     available_countries,
@@ -9,12 +9,14 @@ from ._api import (
     get_watersheds,
     get_watersheds_with_rivers,
 )
+from ._delineate import delineate
 from ._errors import (
     ConfigurationError,
     CorruptedDataError,
     CountryNotFoundError,
     DataNotFoundError,
     DataUnavailableError,
+    DelineationError,
     GaugeNotFoundError,
     InvalidArgumentError,
     R2ConnectionError,
@@ -27,6 +29,7 @@ __all__ = [
     "available_countries",
     "available_gauges",
     "configure",
+    "delineate",
     "get_watershed",
     "get_watershed_with_rivers",
     "get_watersheds",
@@ -38,6 +41,7 @@ __all__ = [
     "CountryNotFoundError",
     "DataNotFoundError",
     "DataUnavailableError",
+    "DelineationError",
     "GaugeNotFoundError",
     "InvalidArgumentError",
     "R2ConnectionError",

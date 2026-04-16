@@ -1221,6 +1221,11 @@ wheels = [
 ]
 
 [[package]]
+name = "pyshed"
+version = "0.1.0"
+source = { editable = "../shed/crates/python" }
+
+[[package]]
 name = "pyshp"
 version = "3.0.3"
 source = { registry = "https://pypi.org/simple" }
@@ -1437,12 +1442,17 @@ wheels = [
 
 [[package]]
 name = "watershed-retrieve"
-version = "1.0.5"
+version = "1.1.1"
 source = { editable = "." }
 dependencies = [
     { name = "fsspec", extra = ["http"] },
     { name = "geopandas" },
     { name = "pyarrow" },
+]
+
+[package.optional-dependencies]
+delineate = [
+    { name = "pyshed" },
 ]
 
 [package.dev-dependencies]
@@ -1460,7 +1470,9 @@ requires-dist = [
     { name = "fsspec", extras = ["http"], specifier = ">=2024.1.0" },
     { name = "geopandas", specifier = ">=1.1.3" },
     { name = "pyarrow", specifier = ">=23.0.1" },
+    { name = "pyshed", marker = "extra == 'delineate'", editable = "../shed/crates/python" },
 ]
+provides-extras = ["delineate"]
 
 [package.metadata.requires-dev]
 dev = [
