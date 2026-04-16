@@ -9,6 +9,7 @@ import watershed_retrieve as wr
 from tests.conftest import FakePyshedEngine
 from watershed_retrieve._errors import (
     ConfigurationError,
+    CorruptedDataError,
     DelineationError,
     InvalidArgumentError,
     WatershedRetrieveError,
@@ -68,14 +69,14 @@ class TestDelineateErrorMapping:
         with pytest.raises(DelineationError, match="Could not resolve outlet"):
             wr.delineate(lat=0.2, lon=1.7, dataset=dataset)
 
-    def test_assembly_error_maps_to_delineation_error(self, patch_pyshed, tmp_path):
+    def test_assembly_error_maps_to_corrupted_data_error(self, patch_pyshed, tmp_path):
         import watershed_retrieve._delineate as delin_mod
 
         dataset = str(tmp_path)
         key = str(Path(dataset).resolve())
         delin_mod._engine_cache[key] = FakePyshedEngine(key, behavior="assembly_error")
 
-        with pytest.raises(DelineationError, match="Geometry assembly failed"):
+        with pytest.raises(CorruptedDataError, match="Geometry assembly failed"):
             wr.delineate(lat=0.2, lon=1.7, dataset=dataset)
 
     def test_shed_error_maps_to_watershed_retrieve_error(self, patch_pyshed, tmp_path):
@@ -164,7 +165,7 @@ class TestDelineateNoPyshed:
 
 
 class TestDelineateInputValidation:
-    """Type validation for lat/lon parameters."""
+    """Type validation for lat/lon/dataset parameters."""
 
     def test_non_numeric_lat_raises_invalid_argument_error(self, patch_pyshed):
         with pytest.raises(InvalidArgumentError, match="lat must be a number"):
@@ -173,6 +174,14 @@ class TestDelineateInputValidation:
     def test_non_numeric_lon_raises_invalid_argument_error(self, patch_pyshed):
         with pytest.raises(InvalidArgumentError, match="lon must be a number"):
             wr.delineate(lat=1.0, lon=None, dataset="/fake")  # type: ignore[arg-type]
+
+    def test_none_dataset_raises_invalid_argument_error(self, patch_pyshed):
+        with pytest.raises(InvalidArgumentError, match="dataset must be a str or Path"):
+            wr.delineate(lat=1.0, lon=1.0, dataset=None)  # type: ignore[arg-type]
+
+    def test_int_dataset_raises_invalid_argument_error(self, patch_pyshed):
+        with pytest.raises(InvalidArgumentError, match="dataset must be a str or Path"):
+            wr.delineate(lat=1.0, lon=1.0, dataset=42)  # type: ignore[arg-type]
 
 
 class TestDelineateEngineCache:

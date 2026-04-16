@@ -8,6 +8,7 @@ from shapely import from_wkb
 
 from ._errors import (
     ConfigurationError,
+    CorruptedDataError,
     DelineationError,
     InvalidArgumentError,
     WatershedRetrieveError,
@@ -41,6 +42,8 @@ def _get_engine(dataset: str | Path) -> Any:
 
 def delineate(*, lat: float, lon: float, dataset: str | Path) -> gpd.GeoDataFrame:
     """Delineate the watershed upstream of a single outlet."""
+    if not isinstance(dataset, (str, Path)):
+        raise InvalidArgumentError(f"dataset must be a str or Path, got {type(dataset).__name__!r}")
     if not isinstance(lat, (int, float)):
         raise InvalidArgumentError(f"lat must be a number, got {type(lat).__name__!r}")
     if not isinstance(lon, (int, float)):
@@ -55,7 +58,7 @@ def delineate(*, lat: float, lon: float, dataset: str | Path) -> gpd.GeoDataFram
     except _pyshed.ResolutionError as exc:
         raise DelineationError(f"Could not resolve outlet at lat={lat}, lon={lon}: {exc}") from exc
     except _pyshed.AssemblyError as exc:
-        raise DelineationError(f"Geometry assembly failed at lat={lat}, lon={lon}: {exc}") from exc
+        raise CorruptedDataError(f"Geometry assembly failed at lat={lat}, lon={lon}: {exc}") from exc
     except _pyshed.ShedError as exc:
         raise WatershedRetrieveError(str(exc)) from exc
 
