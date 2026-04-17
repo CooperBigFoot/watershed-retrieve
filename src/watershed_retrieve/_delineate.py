@@ -25,7 +25,14 @@ _engine_cache: dict[str, Any] = {}
 def _require_pyshed() -> None:
     """Raise if pyshed is not installed."""
     if _pyshed is None:
-        raise ConfigurationError("pyshed is not installed. Install it with: pip install watershed-retrieve[delineate]")
+        raise ConfigurationError(
+            "pyshed is not installed. pyshed currently ships only as an Apple "
+            "Silicon macOS wheel. On macOS arm64, install with: "
+            "pip install watershed-retrieve[delineate]. On other platforms, "
+            "install pyshed from source (https://github.com/CooperBigFoot/shed) "
+            "or contribute a wheel "
+            "(https://github.com/CooperBigFoot/shed/blob/main/CONTRIBUTING.md)."
+        )
 
 
 def _get_engine(dataset: str | Path) -> Any:
